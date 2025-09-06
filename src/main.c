@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+
 #include "newton_interpolation.h"
 #include "utils.h"
+#include "lagrange.h"
+#include "cubic_spline.h"
 
 const double START = 1.0;
 const double END = 10.0;
@@ -16,25 +20,34 @@ double f2(double x) {
 }
 
 int main () {
-    int n_values[] = {5, 10, 15};
+    int n_values[] = {5, 10, 15, 20, 30};
     int num_iterations = sizeof(n_values) / sizeof(n_values[0]);
+    double real_value = f1(ESTIMATED_POINT);
     
     for (int i = 0; i < num_iterations; i++) {
         int n = n_values[i];
         double x[n];
         double y[n];
-        double table[n * n];
         generate_points(n, START, END, x, y, f1);
 
         // NEWTON
+        double table[n * n];
         calcule_split_difference_table(n, x, y, table);
-        double result = horner_method(n, x, table, ESTIMATED_POINT);
-
-        printf("using n = %d, estimated point in newton = %.20f\n", n, result);
+        double result_newton = horner_method(n, x, table, ESTIMATED_POINT);
+        printf("NEWTON n = %d | error = %.20f\n", n, fabs(real_value - result_newton));
 
         // LAGRANGE
+        double result_lagrange = calcule_lagrange(n, x, y, ESTIMATED_POINT);
+        printf("LAGRANGE n = %d | error = %.20f\n", n, fabs(real_value - result_lagrange));
 
         // CUBIC SPLINE
+        double *second_derivs = (double *)malloc(n * sizeof(double));
+        calculate_second_derivatives(n, x, y, second_derivs);
+        double result_cubic_spline = cubic_spline_interpolation(n, x, y, second_derivs, ESTIMATED_POINT);
+        free(second_derivs);
+        printf("CUBIC SPLINE n = %d | error = %.20f\n", n, fabs(real_value - result_cubic_spline));
+
+        printf("\n");
     }
 
     return 0;
