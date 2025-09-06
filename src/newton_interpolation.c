@@ -15,17 +15,6 @@ void calcule_split_difference_table(int n, double x[], double y[], double table[
     }
 }
 
-void print_difference_table(int n, double x[], double table[]) {
-    printf("Tabela de Diferencas Divididas:\n");
-    for (int i = 0; i < n; i++) {
-        printf("x=%.1f | ", x[i]);
-        for (int j = 0; j < n - i; j++) {
-            printf("%10.4f ", table[i * n + j]);
-        }
-        printf("\n");
-    }
-}
-
 double horner_method(int n, double x[], double table[], double point) {
     double result = table[n - 1];
 
