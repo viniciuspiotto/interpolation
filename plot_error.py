@@ -47,7 +47,7 @@ def plot_separate_charts_by_method(df):
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles=handles, labels=labels, title='Function Type', fontsize=11)
         
-        filename = f"graph_{method}.png"
+        filename = f"error_{method}.png"
         
         plt.tight_layout()
         plt.savefig(f'plots/{filename}', dpi=300)
