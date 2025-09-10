@@ -3,56 +3,70 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-def load_and_prepare_data(filename="error.csv"):
+def carregar_e_preparar_dados(nome_arquivo="error.csv"):
+    """
+    Carrega os dados de um arquivo CSV, trata valores ausentes e renomeia colunas.
+    """
     try:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(nome_arquivo)
     except FileNotFoundError:
-        print(f"Erro: file '{filename}' not found")
+        print(f"Erro: arquivo '{nome_arquivo}' não encontrado.")
         return None
 
-    df['Function'] = df['Function'].ffill()
-    df['Method'] = df['Method'].ffill()
-    df['Mean_error'] = df['Mean_error'].replace(0, 1e-12)
+    # Preenche valores ausentes para Função e Método
+    df['Funcao'] = df['Function'].ffill()
+    df['Metodo'] = df['Method'].ffill()
+    
+    # Substitui 0 por um valor muito pequeno para evitar problemas com a escala logarítmica
+    df['Erro_Medio'] = df['Mean_error'].replace(0, 1e-12)
+    
     return df
 
-def plot_separate_charts_by_method(df):
+def plotar_graficos_separados_por_metodo(df):
+    """
+    Gera e salva gráficos de erro separados para cada método de interpolação.
+    """
     if df is None:
         return
 
-    methods = df['Method'].unique()
+    metodos = df['Metodo'].unique()
+    pasta_graficos = 'graficos'
 
-    if not os.path.exists('plots'):
-        os.makedirs('plots')
+    if not os.path.exists(pasta_graficos):
+        os.makedirs(pasta_graficos)
 
-    for method in methods:
+    for metodo in metodos:
         plt.figure(figsize=(11, 7))
-        
-        method_data = df[df['Method'] == method]
-        
+
+        dados_metodo = df[df['Metodo'] == metodo]
+
         ax = sns.lineplot(
-            data=method_data,
+            data=dados_metodo,
             x='N',
-            y='Mean_error',
-            hue='Function',
+            y='Erro_Medio',
+            hue='Funcao',
             marker='o',
             linewidth=2.5
         )
-        
+
         ax.set_yscale('log')
-        ax.set_title(f'{method.replace('_', ' ')} Method', fontsize=16)
-        ax.set_ylabel('Average error (log)', fontsize=12)
-        ax.set_xlabel('Number of Points (N)', fontsize=12)
+        ax.set_title(f'Método: {metodo.replace("_", " ")}', fontsize=16)
+        ax.set_ylabel('Erro Médio (escala log)', fontsize=12)
+        ax.set_xlabel('Número de Pontos (N)', fontsize=12)
         ax.grid(True, which="both", ls="--")
-        
+
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles=handles, labels=labels, title='Function Type', fontsize=11)
-        
-        filename = f"error_{method}.png"
-        
+        ax.legend(handles=handles, labels=labels, title='Tipo de Função', fontsize=11)
+
+        nome_arquivo_saida = f"error_{metodo}.png"
+        caminho_salvar = os.path.join(pasta_graficos, nome_arquivo_saida)
+
         plt.tight_layout()
-        plt.savefig(f'plots/{filename}', dpi=300)
+        plt.savefig(caminho_salvar, dpi=300)
         plt.close()
+        
+        print(f"Gráfico salvo em: {caminho_salvar}")
 
 if __name__ == "__main__":
-    error_df = load_and_prepare_data(filename="error.csv")
-    plot_separate_charts_by_method(error_df)
+    df_erro = carregar_e_preparar_dados(nome_arquivo="error.csv")
+    plotar_graficos_separados_por_metodo(df_erro)

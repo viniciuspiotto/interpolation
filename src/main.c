@@ -30,16 +30,16 @@ int main () {
     complexing_time = fopen("complex.csv", "w");
     error = fopen("error.csv", "w");
 
-    fprintf(complexing_time,"Method,Function,Scenarios,N,Total_time\n");
+    fprintf(complexing_time,"Method,Function,N,Total_time\n");
     fprintf(error,"Method,Function,N,Mean_error\n");
 
     TestFunction test_functions[] = {
-        { polynomial_function, "Polynomial" },
-        { trigonometric_function, "Trigonometric" },
-        { exponential_function, "Exponential" },
-        { logarithmic_function, "Logarithmic" },
+        { polynomial_function, "Polinomial" },
+        { trigonometric_function, "Trigonométrico" },
+        { exponential_function, "Exponencial" },
+        { logarithmic_function, "Logaritmo" },
         { runge_function, "Runge" },
-        { step_function, "Step" }
+        { step_function, "Degrau" }
     };
     
     for (int j = 0; j < FUNCTION_AMOUNT; j++) {
@@ -52,15 +52,12 @@ int main () {
                 double start_time, end_time, total_time;
 
                 // NEWTON
-                // Pre_processing
                 start_time = get_time();
                 double newton_table[n * n];
                 calcule_split_difference_table(n, x, y, newton_table);
                 end_time = get_time();
                 total_time = end_time - start_time;
-                fprintf(complexing_time,"Newton,%s,Pre_processing,%d,%.9f\n",test_functions[j].name, n, total_time);
 
-                // Multiples_Points
                 start_time = get_time();
                 double sum_newton = 0.0;
                 double real_value = 0.0;
@@ -70,14 +67,10 @@ int main () {
                 }
                 fprintf(error,"Newton,%s,%d,%.9f\n", test_functions[j].name,n, sum_newton/NUM_EVALS);
                 end_time = get_time();
-                total_time = end_time - start_time;
-                fprintf(complexing_time,"Newton,%s,Multiples_Points,%d,%.9f\n",test_functions[j].name, n, total_time);
+                total_time += end_time - start_time;
+                fprintf(complexing_time,"Newton,%s,%d,%.9f\n",test_functions[j].name, n, total_time);
 
                 // LAGRANGE
-                // Pre_processing
-                fprintf(complexing_time,"Lagrange,%s,Pre_processing,%d,N/A\n",test_functions[j].name, n);
-
-                // Multiples_Points
                 start_time = get_time();
                 double response_lagrange = 0.0;
                 for (int k = 0; k < NUM_EVALS; k++) {
@@ -87,17 +80,14 @@ int main () {
                 fprintf(error,"Lagrange,%s,%d,%.9f\n",test_functions[j].name, n, response_lagrange/NUM_EVALS);
                 end_time = get_time();
                 total_time = end_time - start_time;
-                fprintf(complexing_time,"Lagrange,%s,Multiples_Points,%d,%.9f\n",test_functions[j].name, n, total_time);
+                fprintf(complexing_time,"Lagrange,%s,%d,%.9f\n",test_functions[j].name, n, total_time);
 
                 // CUBIC SPLINE
-                // Pre_processing
                 start_time = get_time();
                 double *second_derivs = (double *)malloc(n * sizeof(double));
                 end_time = get_time();
                 total_time = end_time - start_time;
-                fprintf(complexing_time,"Cubic_Spline,%s,Pre_processing,%d,%.9f\n",test_functions[j].name, n, total_time);
 
-                // Multiples_Points
                 start_time = get_time();
                 double response_cubic_spline = 0.0;
                 for (int k = 0; k < NUM_EVALS; k++) {
@@ -106,8 +96,8 @@ int main () {
                 }
                 fprintf(error,"Cubic_Spline,%s,%d,%.9f\n",test_functions[j].name, n, response_cubic_spline/NUM_EVALS);
                 end_time = get_time();
-                total_time = end_time - start_time;
-                fprintf(complexing_time,"Cubic_Spline,%s,Multiples_Points,%d,%.9f\n",test_functions[j].name, n, total_time);
+                total_time += end_time - start_time;
+                fprintf(complexing_time,"Cubic_Spline,%s,%d,%.9f\n",test_functions[j].name, n, total_time);
                 free(second_derivs);
             }
     }
